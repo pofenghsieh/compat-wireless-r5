@@ -41,20 +41,34 @@ Building:
 
 Select your type of Jorjin SiP modules then to copy in filesystem.
 
-For example:
+For Android:
 
+# cp jorjin/wg73x_fw/*.bin ${ROOTFS}/etc/firmware/ti-connectivity
+
+For Linux:
 # cp jorjin/wg73x_fw/*.bin ${ROOTFS}/lib/firmware/ti-connectivity
+
+====================================================================================================
+
+3. Copy driver module
+
+# cp compat/compat.ko   $(DESTDIR)/system/lib/modules
+# cp drivers/net/wireless/wl12xx/wl12xx.ko      $(DESTDIR)/system/lib/modules
+# cp net/mac80211/mac80211.ko                   $(DESTDIR)/system/lib/modules
+# cp net/wireless/cfg80211.ko                   $(DESTDIR)/system/lib/modules
+# cp drivers/net/wireless/wl12xx/wl12xx_sdio.ko $(DESTDIR)/system/lib/modules
+# cp drivers/net/wireless/wl12xx/wl12xx_spi.ko  $(DESTDIR)/system/lib/modules
 
 ====================================================================================================
 4. Insert module
 
-If boot in system, according to as below for insert module.
+Go to you filesystem then according to as below for insert module.
 
 # insmod compat.ko
 # insmod cfg80211.ko
 # insmod mac80211.ko
 
-For your type.
+Select your type of WiFi Combo Module.
 # insmod wl1251<or wl12xx>.ko
 # insmod wl1251_sdio<or wl12xx_sdio>.ko
 
@@ -66,7 +80,7 @@ For your type.
 # git clone git://github.com/dickychiang/hostap.git
 # cd hostap
 # git checkout R5_SP1_Maintenance_Release
-# cd ../ ; cp -rf hostap $MYDROID/external/wpa_supplicant_8
+# cd ../ ; cp -rf hostap/* $MYDROID/external/wpa_supplicant_8
 
 2. Install ti-utils (for calibration)
 # git clone git://github.com/dickychiang/ti-utils.git
@@ -80,7 +94,9 @@ For your type.
 # git checkout ol_R5.00.21
 # cd ../ ; cp -rf iw $MYDROID/external/iw
 
-
+4. Install crda(Central Regulatory Domain Agent)
+# git clone git://github.com/dickychiang/crda.git
+# cp -rf crda $MYDROID/external/crda
 
 ********************************************
 * Wireless Configuration (For Linux system)*
