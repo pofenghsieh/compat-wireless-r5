@@ -1,4 +1,7 @@
-KLIB:= $(ROOT_DIR)/kernel
+ifneq ($(origin KLIB), undefined)
+KMODPATH_ARG:=  "INSTALL_MOD_PATH=$(KLIB)"
+else
+export KLIB:=          /lib/modules/$(shell uname -r)
 KLIB_BUILD ?= $(KLIB)
 
 DESTDIR?=
