@@ -25,10 +25,12 @@ Download site:
 
 Setting up build environment:
 
+# export YOUR_PATH=`pwd`
 # export ARCH=arm
 # export CROSS_COMPILE=<YOUR_TOOL_CHAIN>
-# export DESTDIR=<YOUR_INSTALL_MODULE_PATH>
-# export KLIB=<YOUR_KERNEL_PATH>
+# export PATH=$PATH:<PATH_TO_THE_TOOL_CHAIN>
+# export DESTDIR=<INSTALL_MODULE_PATH>
+# export KLIB=<KERNEL_PATH>
 # export KLIB_BUILD=$KLIB
 
 Building:
@@ -42,22 +44,20 @@ Building:
 Select your type of Jorjin SiP modules then to copy in filesystem.
 
 For Android:
-
-# cp jorjin/wg73x_fw/*.bin ${ROOTFS}/etc/firmware/ti-connectivity
-
+# cp ${YOUR_PATH}/jorjin/wg73x_fw/*.bin <FILE_SYSTEM>/etc/firmware/ti-connectivity
 For Linux:
-# cp jorjin/wg73x_fw/*.bin ${ROOTFS}/lib/firmware/ti-connectivity
+# cp ${YOUR_PATH}/jorjin/wg73x_fw/*.bin <FILE_SYSTEM>/lib/firmware/ti-connectivity
 
 ====================================================================================================
 
 3. Copy driver module
 
-# cp compat/compat.ko   $(DESTDIR)/system/lib/modules
-# cp drivers/net/wireless/wl12xx/wl12xx.ko      $(DESTDIR)/system/lib/modules
-# cp net/mac80211/mac80211.ko                   $(DESTDIR)/system/lib/modules
-# cp net/wireless/cfg80211.ko                   $(DESTDIR)/system/lib/modules
-# cp drivers/net/wireless/wl12xx/wl12xx_sdio.ko $(DESTDIR)/system/lib/modules
-# cp drivers/net/wireless/wl12xx/wl12xx_spi.ko  $(DESTDIR)/system/lib/modules
+# cp ${YOUR_PATH}/compat/compat.ko                           $(DESTDIR)/system/lib/modules
+# cp ${YOUR_PATH}/drivers/net/wireless/wl12xx/wl12xx.ko      $(DESTDIR)/system/lib/modules
+# cp ${YOUR_PATH}/net/mac80211/mac80211.ko                   $(DESTDIR)/system/lib/modules
+# cp ${YOUR_PATH}/net/wireless/cfg80211.ko                   $(DESTDIR)/system/lib/modules
+# cp ${YOUR_PATH}/drivers/net/wireless/wl12xx/wl12xx_sdio.ko $(DESTDIR)/system/lib/modules
+# cp ${YOUR_PATH}/drivers/net/wireless/wl12xx/wl12xx_spi.ko  $(DESTDIR)/system/lib/modules
 
 ====================================================================================================
 4. Insert module
