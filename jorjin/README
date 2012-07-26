@@ -18,22 +18,23 @@ The wlan driver will to support WG72, WG73x, WG75x series of Jorjin SiP modules.
 
 Download site:
 
-$ git clone git://github.com/dickychiang/compat-wireless-r5-sp1.git
+# git clone git://github.com/dickychiang/compat-wireless-r5-sp1.git
 
 ====================================================================================================
 1. Build Instructions
 
 Setting up build environment:
 
-$ export ARCH=arm
-$ export CROSS_COMPILE=<YOUR_TOOL_CHAIN>
-$ export ROOT_PATH=<YOUR_PATH>
-$ export DESTDIR=<YOUR_INSTALL_MODULE_PATH>
+# export ARCH=arm
+# export CROSS_COMPILE=<YOUR_TOOL_CHAIN>
+# export DESTDIR=<YOUR_INSTALL_MODULE_PATH>
+# export KLIB=<YOUR_KERNEL_PATH>
+# export KLIB_BUILD=$KLIB
 
 Building:
 
-$ make modules     # Only modules
-$ make install     # build modules & install to your filesystem
+# make modules     # Only modules
+# make install     # build modules & install to your filesystem
 
 ====================================================================================================
 2. Firmware
@@ -42,20 +43,44 @@ Select your type of Jorjin SiP modules then to copy in filesystem.
 
 For example:
 
-$ cp jorjin/wg73x_fw/*.bin ${ROOTFS}/lib/firmware/ti-connectivity
+# cp jorjin/wg73x_fw/*.bin ${ROOTFS}/lib/firmware/ti-connectivity
 
 ====================================================================================================
 4. Insert module
 
 If boot in system, according to as below for insert module.
 
-$ insmod compat.ko
-$ insmod cfg80211.ko
-$ insmod mac80211.ko
+# insmod compat.ko
+# insmod cfg80211.ko
+# insmod mac80211.ko
 
 For your type.
-$ insmod wl1251<or wl12xx>.ko
-$ insmod wl1251_sdio<or wl12xx_sdio>.ko
+# insmod wl1251<or wl12xx>.ko
+# insmod wl1251_sdio<or wl12xx_sdio>.ko
+
+*********************************************
+* Wireless Configuration(For Android system)*
+*********************************************
+
+1. Install SoftAP & wpa_supplicant_8 with R5-SP1 WLAN driver
+# git clone git://github.com/dickychiang/hostap.git
+# cd hostap
+# git checkout R5_SP1_Maintenance_Release
+# cd ../ ; cp -rf hostap $MYDROID/external/wpa_supplicant_8
+
+2. Install ti-utils (for calibration)
+# git clone git://github.com/dickychiang/ti-utils.git
+# cd ti-utils
+# git checkout R5_SP1_Maintenance_Release
+# cd ../ ; cp -rf ti-utils $MYDROID/external/ti-utils
+
+3. Install IW for Android version
+# git clone git://github.com/dickychiang/iw.git
+# cd iw
+# git checkout ol_R5.00.21
+# cd ../ ; cp -rf iw $MYDROID/external/iw
+
+
 
 ********************************************
 * Wireless Configuration (For Linux system)*
@@ -71,43 +96,43 @@ IW commands is use 'nl80211' interface, so we need to install 'libnl' first then
 
 First to download it:
 
-$ git clone git://github.com/dickychiang/libnl-2.0.git
+# git clone git://github.com/dickychiang/libnl-2.0.git
 
 And export environment or can reference to script 'm.sh'
 
-$ export ROOTFS_PATH=<YOUR_ROOTFS_PATH>
-$ export PATH=<YOUR_TOOL_CHAIN_PATH>:$PATH
-$ export CROSS_COMPILE=<YOUR_TOOL_CHAIN_NAME>
-$ ./configure --prefix=${ROOTFS}  CC=${CROSS_COMPILE}gcc --host=arm-linux LD=${CROSS_COMPILE}ld
-$ make
-$ make install
+# export ROOTFS_PATH=<YOUR_ROOTFS_PATH>
+# export PATH=<YOUR_TOOL_CHAIN_PATH>:$PATH
+# export CROSS_COMPILE=<YOUR_TOOL_CHAIN_NAME>
+# ./configure --prefix=${ROOTFS}  CC=${CROSS_COMPILE}gcc --host=arm-linux LD=${CROSS_COMPILE}ld
+# make
+# make install
 ====================================================================================================
 2. Install IW tool for wireless configuration
 
 Download source code :
 
-$ git clone git://github.com/dickychiang/iw-linux.git
+# git clone git://github.com/dickychiang/iw-linux.git
 
 Export environment or reference script 'm.sh' for compile.
 
-$ export PKG_CONFIG_PATH=${ROOTFS_PATH}/lib/pkgconfig:$PKG_CONFIG_PATH
-$ export PKG_CONFIG_LIBDIR=${ROOTFS_PATH}/lib/:$PKG_CONFIG_LIBDIR
-$ export NFSROOT=${ROOTFS_PATH}
-$ make PREFIX=${NFSROOT} CC=${CROSS_COMPILE}gcc
-$ make PREFIX=${NFSROOT} CC=${CROSS_COMPILE}gcc install
+# export PKG_CONFIG_PATH=${ROOTFS_PATH}/lib/pkgconfig:$PKG_CONFIG_PATH
+# export PKG_CONFIG_LIBDIR=${ROOTFS_PATH}/lib/:$PKG_CONFIG_LIBDIR
+# export NFSROOT=${ROOTFS_PATH}
+# make PREFIX=${NFSROOT} CC=${CROSS_COMPILE}gcc
+# make PREFIX=${NFSROOT} CC=${CROSS_COMPILE}gcc install
 ====================================================================================================
 3. How to using the iw tool
 
 Usually, the following is commonly commands.
 
-$ iw wlan0 scan                     // Scan for Wifi network
-$ iw wlan0 connect <SSIO>           // Connect to specifc Access point (by its SSID)
-$ iw wlan0 disconnect               // Disconnect from the Access point that the Station is connected too   
-$ iw wlan0 link                     // Verify Link Status
+# iw wlan0 scan                     // Scan for Wifi network
+# iw wlan0 connect <SSIO>           // Connect to specifc Access point (by its SSID)
+# iw wlan0 disconnect               // Disconnect from the Access point that the Station is connected too   
+# iw wlan0 link                     // Verify Link Status
 
 For example as following:
 
-$ iw wlan0 scan
+# iw wlan0 scan
 BSS 00:13:46:dd:e2:e9 (on wlan0)
 TSF: 362449530606 usec (4d, 04:40:49)
 freq: 2452
@@ -121,9 +146,9 @@ capability: ESS Privacy ShortPreamble (0x0031)
     ERP: <no flags>
     Extended supported rates: 6.0 9.0 12.0 18.0 24.0 36.0 48.0 54.
 
-$ iw wlan0 connect jjap keys 0:0397430202
+# iw wlan0 connect jjap keys 0:0397430202
 
-$ iw wlan0 link
+# iw wlan0 link
 Connected to 00:13:46:dd:e2:e9 (on wlan10)
 SSID: jjap
 freq: 2452
