@@ -1,8 +1,11 @@
+export KMODDIR?=       updates
+KMODDIR_ARG:=   "INSTALL_MOD_DIR=$(KMODDIR)"
 ifneq ($(origin KLIB), undefined)
 KMODPATH_ARG:=  "INSTALL_MOD_PATH=$(KLIB)"
 else
 export KLIB:=          /lib/modules/$(shell uname -r)
-KLIB_BUILD ?= $(KLIB)
+endif
+export KLIB_BUILD ?=    $(KLIB)
 
 DESTDIR?=
 
