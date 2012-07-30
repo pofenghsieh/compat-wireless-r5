@@ -1,7 +1,7 @@
 #################################################################
 #   README
 #
-#   Introduction wlan driver for Jorjin SiP modules
+#   Introduction Wlan Driver For Jorjin SiP Modules
 #
 #   NLCP Version        : R5_SP1
 #   Operation system    : Linux / Android
@@ -12,9 +12,14 @@
 #
 #################################################################
 
-NLCP(Native Linux Communication Package) is open source with integrated for TI.
+NLCP(Native Linux Communication Package) is open source,which to integrated for TI.
 
-The wlan driver will to support WG72, WG73x, WG75x series of Jorjin SiP modules.
+The wlan driver will to support WG72xx/WG73xx/WG75xx of the Jorjin SiP modules.
+
+Wirelees solutions of the between TI and Jorjin:
+* WG72xx - Inside WL125x chip
+* WG73xx - Inside WL127x chip
+* WG75xx - Inside WL128x chip
 
 Download site:
 
@@ -23,9 +28,10 @@ Download site:
 ====================================================================================================
 1. Build Instructions
 
-Setting up build environment:
+Setting your environment:
 
 # export YOUR_PATH=`pwd`
+# export DRIVER_PATH=${YOUR_PATH}/<DRIVER_DIRECTORY>
 # export ARCH=arm
 # export CROSS_COMPILE=<YOUR_TOOL_CHAIN>
 # export PATH=$PATH:<PATH_TO_THE_TOOL_CHAIN>
@@ -36,28 +42,30 @@ Setting up build environment:
 Building:
 
 # make modules     # Only modules
-# make install     # build modules & install to your filesystem
+# make install     # Build modules & install to your filesystem
 
 ====================================================================================================
 2. Firmware
 
-Select your type of Jorjin SiP modules then to copy in filesystem.
+Choose for your module type then to copy into the filesystem.
 
 For Android:
-# cp ${YOUR_PATH}/jorjin/wg73x_fw/*.bin <FILE_SYSTEM>/etc/firmware/ti-connectivity
+# cp ${DRIVER_PATH}/jorjin/firmware/WG73xx_fw/*.bin \
+					<FILE_SYSTEM>/etc/firmware/ti-connectivity/
 For Linux:
-# cp ${YOUR_PATH}/jorjin/wg73x_fw/*.bin <FILE_SYSTEM>/lib/firmware/ti-connectivity
+# cp ${DRIVER_PATH}/jorjin/firmware/WG73xx_fw/*.bin \
+					<FILE_SYSTEM>/lib/firmware/ti-connectivity/
 
 ====================================================================================================
 
 3. Copy driver module
 
-# cp ${YOUR_PATH}/compat/compat.ko                           $(DESTDIR)/system/lib/modules
-# cp ${YOUR_PATH}/drivers/net/wireless/wl12xx/wl12xx.ko      $(DESTDIR)/system/lib/modules
-# cp ${YOUR_PATH}/net/mac80211/mac80211.ko                   $(DESTDIR)/system/lib/modules
-# cp ${YOUR_PATH}/net/wireless/cfg80211.ko                   $(DESTDIR)/system/lib/modules
-# cp ${YOUR_PATH}/drivers/net/wireless/wl12xx/wl12xx_sdio.ko $(DESTDIR)/system/lib/modules
-# cp ${YOUR_PATH}/drivers/net/wireless/wl12xx/wl12xx_spi.ko  $(DESTDIR)/system/lib/modules
+# cp ${DRIVER_PATH}/compat/compat.ko                           $(DESTDIR)/system/lib/modules
+# cp ${DRIVER_PATH}/drivers/net/wireless/wl12xx/wl12xx.ko      $(DESTDIR)/system/lib/modules
+# cp ${DRIVER_PATH}/net/mac80211/mac80211.ko                   $(DESTDIR)/system/lib/modules
+# cp ${DRIVER_PATH}/net/wireless/cfg80211.ko                   $(DESTDIR)/system/lib/modules
+# cp ${DRIVER_PATH}/drivers/net/wireless/wl12xx/wl12xx_sdio.ko $(DESTDIR)/system/lib/modules
+# cp ${DRIVER_PATH}/drivers/net/wireless/wl12xx/wl12xx_spi.ko  $(DESTDIR)/system/lib/modules
 
 ====================================================================================================
 4. Insert module
@@ -68,13 +76,14 @@ Go to you filesystem then according to as below for insert module.
 # insmod cfg80211.ko
 # insmod mac80211.ko
 
-Select your type of WiFi Combo Module.
+Choose for your module type.
 # insmod wl1251<or wl12xx>.ko
 # insmod wl1251_sdio<or wl12xx_sdio>.ko
 
-*********************************************
-* Wireless Configuration(For Android system)*
-*********************************************
+====================================================================================================
+************************************
+* Related WLAN tools & application *
+************************************
 
 1. Install SoftAP & wpa_supplicant_8 with R5-SP1 WLAN driver
 # git clone git://github.com/dickychiang/hostap.git
@@ -82,13 +91,13 @@ Select your type of WiFi Combo Module.
 # git checkout R5_SP1_Maintenance_Release
 # cd ../ ; cp -rf hostap/* $MYDROID/external/wpa_supplicant_8
 
-2. Install ti-utils (for calibration)
+2. Install ti-utils (calibration tools)
 # git clone git://github.com/dickychiang/ti-utils.git
 # cd ti-utils
 # git checkout R5_SP1_Maintenance_Release
 # cd ../ ; cp -rf ti-utils $MYDROID/external/ti-utils
 
-3. Install IW for Android version
+3. Install IW (for Android version)
 # git clone git://github.com/dickychiang/iw.git
 # cd iw
 # git checkout ol_R5.00.21
@@ -98,15 +107,67 @@ Select your type of WiFi Combo Module.
 # git clone git://github.com/dickychiang/crda.git
 # cp -rf crda $MYDROID/external/crda
 
-********************************************
-* Wireless Configuration (For Linux system)*
-********************************************
-----------------------------------------------------------------------------------------------------
-IW commands are Linux based commands that are used as configuration utility for wireless devices.
-IW commands also provide connection to WLAN devices however it is not supported advance security modes (supports Non secured networks and WEP only) therefore we normaly use that option for debug mode only while working without WPA supplicant.
+====================================================================================================
+************************************
+* How to Calibration *
+************************************
+The calibrator and other useful utilities for TI wireless solution,
+based on wl12xx driver.
 
-IW commands is use 'nl80211' interface, so we need to install 'libnl' first then to support it.
-----------------------------------------------------------------------------------------------------
+Calibration is a process in which specific radio configuration parameters are
+generated and saved into the NVS file, later to be used by the wl12xx driver
+upon initialization.
+These configuration parameters are specific to the chip on the specific design
+and therefore are sent back to the driver to store in non-volatile memory for
+later use. Upon initialization, the wl12xx driver will load an NVS file where
+it expects to read those parameters and send them to the chip.
+
+The NVS file contains 2 main parts - one stores the calibration parameters and
+the other one stores initialization information required for the wl12xx driver.
+
+
+1. Install ti-utils (calibration tools)
+# git clone git://github.com/dickychiang/ti-utils.git
+# cd ti-utils
+# git checkout R5_SP1_Maintenance_Release
+# make
+Don't forget to set your environment before make.
+
+# cp ./calibrator <FILE_SYSTEM>/bin/
+
+2. Copy ini files into the filesystem
+For Andriod:
+# cp ${DRIVER_PATH}/jorjin/ini_files/<YOUR_TYPE> \
+${TAGET_OUT}/etc/firmware/ti-connectivity/TQS_S_2.6.ini <or TQS_D_1.7.ini>
+For Native Linux:
+# cp ${DRIVER_PATH}/jorjin/ini_files/<YOUR_TYPE> \
+${ROOT_FS}/lib/firmware/ti-connectivity/TQS_S_2.6.ini <or TQS_D_1.7.ini>
+
+3. Execute calibrator on your board
+# rmmod wl12xx_sdio.ko
+# calibrator plt autocalibrate <dev> <kernel mod> <ini> <nvs> <mac>
+<dev>         Device name. Probably wlan0
+<kernel mod>  Full path to wl12xx_sdio.ko kernel module                                                                             
+<ini>         Full path to Radio param ini file
+<nvs>         Full path of nvs file. Must be the real path as wl12xx will load it
+For example: 
+# calibrator plt autocalibrate wlan0 \
+/system/lib/modules/wl12xx_sdio.ko \
+/etc/firmware/ti-connectivity/TQS_S_2.6.ini \
+/etc/firmware/ti-connectivity/wl1271-nvs.bin 00:01:02:03:04:05
+
+Appendix:
+
+How to change MAC address in calibrated NVS
+
+# calibrator set nvs_mac <nvs file> [<mac addr xx:xx:xx:xx:xx:xx>]
+
+If the MAC address missing, the random valid value will be added
+
+====================================================================================================
+**********************
+* Building for Linux *
+**********************
 
 1. Install libnl-2.0
 
@@ -122,6 +183,7 @@ And export environment or can reference to script 'm.sh'
 # ./configure --prefix=${ROOTFS}  CC=${CROSS_COMPILE}gcc --host=arm-linux LD=${CROSS_COMPILE}ld
 # make
 # make install
+
 ====================================================================================================
 2. Install IW tool for wireless configuration
 
@@ -137,16 +199,16 @@ Export environment or reference script 'm.sh' for compile.
 # make PREFIX=${NFSROOT} CC=${CROSS_COMPILE}gcc
 # make PREFIX=${NFSROOT} CC=${CROSS_COMPILE}gcc install
 ====================================================================================================
-3. How to using the iw tool
+3. How to use iw tool
 
-Usually, the following is commonly commands.
+Usually is commonly commands the following.
 
 # iw wlan0 scan                     // Scan for Wifi network
 # iw wlan0 connect <SSIO>           // Connect to specifc Access point (by its SSID)
 # iw wlan0 disconnect               // Disconnect from the Access point that the Station is connected too   
 # iw wlan0 link                     // Verify Link Status
 
-For example as following:
+For example as below:
 
 # iw wlan0 scan
 BSS 00:13:46:dd:e2:e9 (on wlan0)
@@ -176,3 +238,5 @@ TX: 0 bytes (0 packets)
     bss flags:      short-preamble
     dtim period:    3
     beacon int:     100
+
+
