@@ -32,6 +32,7 @@
 #include <linux/gpio.h>
 #include <linux/wl12xx.h>
 #include <linux/pm_runtime.h>
+#include <linux/semaphore.h>
 
 #include "wl12xx.h"
 #include "wl12xx_80211.h"
@@ -55,6 +56,8 @@ static const struct sdio_device_id wl1271_devices[] __devinitconst = {
 	{}
 };
 MODULE_DEVICE_TABLE(sdio, wl1271_devices);
+
+struct semaphore wifi_sem;
 
 static void wl1271_sdio_set_block_size(struct device *child,
 				       unsigned int blksz)
@@ -134,6 +137,12 @@ static int wl12xx_sdio_power_on(struct wl12xx_sdio_glue *glue)
 	int ret;
 	struct sdio_func *func = dev_to_sdio_func(glue->dev);
 	struct mmc_card *card = func->card;
+    const struct wl12xx_platform_data *wlan_data;
+
+    printk("%s\n",__func__);
+
+	wlan_data = wl12xx_get_platform_data();
+	wlan_data->set_power(1);
 
 	ret = pm_runtime_get_sync(&card->dev);
 	if (ret) {
@@ -162,6 +171,11 @@ static int wl12xx_sdio_power_off(struct wl12xx_sdio_glue *glue)
 	int ret;
 	struct sdio_func *func = dev_to_sdio_func(glue->dev);
 	struct mmc_card *card = func->card;
+	const struct wl12xx_platform_data *wlan_data;
+
+    printk("%s \n",__func__);
+
+	wlan_data = wl12xx_get_platform_data();
 
 	sdio_claim_host(func);
 	sdio_disable_func(func);
@@ -174,6 +188,9 @@ static int wl12xx_sdio_power_off(struct wl12xx_sdio_glue *glue)
 
 	/* Let runtime PM know the card is powered off */
 	pm_runtime_put_sync(&card->dev);
+
+	wlan_data->set_power(0);
+    return ret;
 
 out:
 	return ret;
@@ -277,6 +294,7 @@ static int __devinit wl1271_probe(struct sdio_func *func,
 		dev_err(glue->dev, "can't add platform device\n");
 		goto out_dev_put;
 	}
+	up(&wifi_sem);
 	return 0;
 
 out_dev_put:
@@ -316,8 +334,7 @@ static int wl1271_suspend(struct device *dev)
 		wl->wow_enabled);
 
 	/* check whether sdio should keep power */
-	if (wl->wow_enabled) {
-		sdio_flags = sdio_get_host_pm_caps(func);
+    sdio_flags = sdio_get_host_pm_caps(func);
 
 		if (!(sdio_flags & MMC_PM_KEEP_POWER)) {
 			dev_err(dev, "can't keep power while host "
@@ -331,7 +348,6 @@ static int wl1271_suspend(struct device *dev)
 		if (ret) {
 			dev_err(dev, "error while trying to keep power\n");
 			goto out;
-		}
 	}
 out:
 	return ret;
@@ -364,12 +380,52 @@ static struct sdio_driver wl1271_sdio_driver = {
 
 static int __init wl1271_init(void)
 {
-	return sdio_register_driver(&wl1271_sdio_driver);
+	int ret = 0;
+	const struct wl12xx_platform_data *wlan_data;
+
+    printk("%s: Enable WiFI power on TG3\n",__func__);
+	wlan_data = wl12xx_get_platform_data();
+	wlan_data->set_power(1);
+	wlan_data->set_carddetect(1);
+
+	sema_init(&wifi_sem, 0);
+
+	printk("%s: register sdio driver\n", __func__);
+	ret = sdio_register_driver(&wl1271_sdio_driver);
+	if (ret) {
+		printk("%s: register sdio driver failed\n", __func__);
+		goto fail;
+	}
+
+	if (down_timeout(&wifi_sem, msecs_to_jiffies(20000)) != 0) {
+		ret=-EINVAL;
+		printk("%s: register sdio driver timeout\n", __func__);
+		goto fail_1;
+	}
+
+	/* turn off wifi chip after driver registration to save power. turn on/off
+	wifi chip from wl1271_sdio_power_on/off function with wifi on/off */
+    printk("%s: Disable WiFI power on TG3\n",__func__);
+	wlan_data = wl12xx_get_platform_data();
+	wlan_data->set_power(0);
+	return ret;
+
+fail_1:
+	sdio_unregister_driver(&wl1271_sdio_driver);
+fail:
+	wlan_data->set_power(0);
+	wlan_data->set_carddetect(0);
+	return ret;
 }
 
 static void __exit wl1271_exit(void)
 {
+	const struct wl12xx_platform_data *wlan_data;
+
+	wlan_data = wl12xx_get_platform_data();
 	sdio_unregister_driver(&wl1271_sdio_driver);
+	wlan_data->set_power(0);
+	wlan_data->set_carddetect(0);
 }
 
 module_init(wl1271_init);

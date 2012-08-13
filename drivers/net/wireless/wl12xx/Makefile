@@ -24,7 +24,7 @@ wl12xx_sdio-objs	= sdio.o
 wl12xx-$(CONFIG_NL80211_TESTMODE)	+= testmode.o
 obj-$(CONFIG_WL12XX)			+= wl12xx.o
 obj-$(CONFIG_WL12XX_SPI)		+= wl12xx_spi.o
-obj-$(CONFIG_COMPAT_WL12XX_SDIO)		+= wl12xx_sdio.o
+obj-$(CONFIG_WL12XX_SDIO)		+= wl12xx_sdio.o
 
 # small builtin driver bit
 obj-$(CONFIG_WL12XX_PLATFORM_DATA)	+= wl12xx_platform_data.o

@@ -9,6 +9,11 @@
 #endif
 #include <linux/compat_autoconf.h>
 
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3,4,0))
+#include <linux/kconfig.h>
+#define br_port_exists(dev)     (dev->priv_flags & IFF_BRIDGE_PORT)
+#endif
+
 /*
  * Each compat file represents compatibility code for new kernel
  * code introduced for *that* kernel revision.
