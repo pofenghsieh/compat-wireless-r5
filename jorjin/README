@@ -3,9 +3,9 @@
 #
 #   Introduction Wlan Driver For Jorjin SiP Modules
 #
-#   NLCP Version        : R5_SP1
+#   NLCP Version        : R5_SP2.04
 #   Operation system    : Linux / Android
-#   Date                : July,24 2012
+#   Date                : Aug,15 2012
 #   Mantainer           : Dicky Chiang <dickychiang@jorjin.com.tw>
 #
 #   Jorjin Technologies Inc - http://www.jorjin.com.tw/
@@ -23,7 +23,13 @@ Wirelees solutions of the between TI and Jorjin:
 
 Download site:
 
-# git clone git://github.com/dickychiang/compat-wireless-r5-sp1.git
+# git clone git://github.com/dickychiang/compat-wireless-r5.git
+
+If you already have source code cloned then just update it:
+# git pull origin
+
+Checkout to newest version of R5.
+# git checkout r5-sp2.04
 
 ====================================================================================================
 1. Build Instructions
@@ -87,20 +93,41 @@ Choose for your module type.
 
 1. Install SoftAP & wpa_supplicant_8 with R5-SP1 WLAN driver
 # git clone git://github.com/dickychiang/hostap.git
+
+If you already have source code cloned then just update it:
+# git pull origin
+
+Checkout to the newest version:
 # cd hostap
-# git checkout R5_SP1_Maintenance_Release
+# git checkout r5_sp2.04
+
+Copy into the Android folder:
 # cd ../ ; cp -rf hostap/* $MYDROID/external/wpa_supplicant_8
 
 2. Install ti-utils (calibration tools)
 # git clone git://github.com/dickychiang/ti-utils.git
-# cd ti-utils
-# git checkout R5_SP1_Maintenance_Release
+
+If you already have source code cloned then just update it:
+# git pull origin
+
+Checkout to the newest version:
+# cd hostap
+# git checkout r5_sp2.04
+
+Copy into the Android folder:
 # cd ../ ; cp -rf ti-utils $MYDROID/external/ti-utils
 
 3. Install IW (for Android version)
 # git clone git://github.com/dickychiang/iw.git
+
+If you already have source code cloned then just update it:
+# git pull origin
+
+Checkout to the newest version:
 # cd iw
-# git checkout ol_R5.00.21
+# git checkout ol_R5.SP2.04
+
+Copy into the Android folder:
 # cd ../ ; cp -rf iw $MYDROID/external/iw
 
 4. Install crda(Central Regulatory Domain Agent)
