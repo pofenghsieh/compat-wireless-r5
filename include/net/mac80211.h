@@ -2166,11 +2166,7 @@ struct ieee80211_ops {
 			       enum ieee80211_tx_sync_type type);
 
 	u64 (*prepare_multicast)(struct ieee80211_hw *hw,
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,35))
 				 struct netdev_hw_addr_list *mc_list);
-#else
-				 int mc_count, struct dev_addr_list *mc_list);
-#endif
 	void (*configure_filter)(struct ieee80211_hw *hw,
 				 unsigned int changed_flags,
 				 unsigned int *total_flags,
@@ -3750,5 +3746,5 @@ int ieee80211_get_open_count(struct ieee80211_hw *hw,
 			     struct ieee80211_vif *exclude_vif);
 
 bool ieee80211_suspending(struct ieee80211_hw *hw);
-
+int ieee80211_started_vifs_count(struct ieee80211_hw *hw);
 #endif /* MAC80211_H */

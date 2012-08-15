@@ -448,13 +448,8 @@ static void ieee80211_do_stop(struct ieee80211_sub_if_data *sdata,
 
 	netif_addr_lock_bh(sdata->dev);
 	spin_lock_bh(&local->filter_lock);
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,35))
 	__hw_addr_unsync(&local->mc_list, &sdata->dev->mc,
 			 sdata->dev->addr_len);
-#else
-	__dev_addr_unsync(&local->mc_list, &local->mc_count,
-			  &sdata->dev->mc_list, &sdata->dev->mc_count);
-#endif
 	spin_unlock_bh(&local->filter_lock);
 	netif_addr_unlock_bh(sdata->dev);
 
@@ -468,7 +463,7 @@ static void ieee80211_do_stop(struct ieee80211_sub_if_data *sdata,
 		struct ieee80211_sub_if_data *vlan, *tmpsdata;
 		struct beacon_data *old_beacon =
 			rtnl_dereference(sdata->u.ap.beacon);
-		struct sk_buff *old_probe_resp =
+		struct probe_resp *old_probe_resp =
 			rtnl_dereference(sdata->u.ap.probe_resp);
 
 		/* sdata_running will return false, so this will disable */
@@ -480,7 +475,7 @@ static void ieee80211_do_stop(struct ieee80211_sub_if_data *sdata,
 		RCU_INIT_POINTER(sdata->u.ap.probe_resp, NULL);
 		synchronize_rcu();
 		kfree(old_beacon);
-		kfree_skb(old_probe_resp);
+		ieee80211_free_probe_resp(old_probe_resp);
 
 		/* down all dependent devices, that is VLANs */
 		list_for_each_entry_safe(vlan, tmpsdata, &sdata->u.ap.vlans,
@@ -622,12 +617,7 @@ static void ieee80211_set_multicast_list(struct net_device *dev)
 		sdata->flags ^= IEEE80211_SDATA_PROMISC;
 	}
 	spin_lock_bh(&local->filter_lock);
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,35))
 	__hw_addr_sync(&local->mc_list, &dev->mc, dev->addr_len);
-#else
-	__dev_addr_sync(&local->mc_list, &local->mc_count,
-			&dev->mc_list, &dev->mc_count);
-#endif
 	spin_unlock_bh(&local->filter_lock);
 	ieee80211_queue_work(&local->hw, &local->reconfig_filter);
 }
