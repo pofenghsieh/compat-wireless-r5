@@ -3,10 +3,10 @@
 #
 #   Introduction Wlan Driver For Jorjin SiP Modules
 #
-#   NLCP Version        : R5_SP1
+#   NLCP Version        : R5-SP1_Soldel-1
 #   Operation system    : Linux / Android
-#   Date                : July,24 2012
-#   Mantainer           : Dicky Chiang <dickychiang@jorjin.com.tw>
+#   Date                : Sep,15 2012
+#   Mantainer           : Dicky Chiang <dickychiang at jorjin.com.tw>
 #
 #   Jorjin Technologies Inc - http://www.jorjin.com.tw/
 #
@@ -22,8 +22,13 @@ Wirelees solutions of the between TI and Jorjin:
 * WG75xx - Inside WL128x chip
 
 Download site:
+# git clone git://github.com/dickychiang/compat-wireless-r5.git
 
-# git clone git://github.com/dickychiang/compat-wireless-r5-sp1.git
+If you already have source code cloned then just update it:
+# git pull origin
+
+Checkout the version to R5-SP1_Soldel-1
+# git checkout R5-SP1_Soldel-1
 
 ====================================================================================================
 1. Build Instructions
@@ -88,13 +93,13 @@ Choose for your module type.
 1. Install SoftAP & wpa_supplicant_8 with R5-SP1 WLAN driver
 # git clone git://github.com/dickychiang/hostap.git
 # cd hostap
-# git checkout R5_SP1_Maintenance_Release
+# git checkout R5_SP1_Maintenance_Release-1
 # cd ../ ; cp -rf hostap/* $MYDROID/external/wpa_supplicant_8
 
 2. Install ti-utils (calibration tools)
 # git clone git://github.com/dickychiang/ti-utils.git
 # cd ti-utils
-# git checkout R5_SP1_Maintenance_Release
+# git checkout R5_SP1_Maintenance_Release-1
 # cd ../ ; cp -rf ti-utils $MYDROID/external/ti-utils
 
 3. Install IW (for Android version)
@@ -129,7 +134,7 @@ the other one stores initialization information required for the wl12xx driver.
 1. Install ti-utils (calibration tools)
 # git clone git://github.com/dickychiang/ti-utils.git
 # cd ti-utils
-# git checkout R5_SP1_Maintenance_Release
+# git checkout R5_SP1_Maintenance_Release-1
 # make
 Don't forget to set your environment before make.
 

@@ -1,14 +1,14 @@
 
 [36mcompat-wireless code metrics[00m
 
-[35m    828161[00m - Total upstream lines of code being pulled
+[35m    828318[00m - Total upstream lines of code being pulled
 [01;32m      2271[00m - backport code changes
 [01;32m      1938[00m - backport code additions
 [01;32m       333[00m - backport code deletions
 [01;32m      8885[00m - backport from compat module
 [01;32m     11156[00m - total backport code
-[31m    1.3471[00m - % of code consists of backport work
+[31m    1.3468[00m - % of code consists of backport work
 
 Base tree: [01;32mwl12xx_soldel_maintenance.git[00m
-Base tree version: [35mR5_SP1_Maintenance_Release[00m
-compat-wireless release: [01;33mr5.00.19-build_236[00m
+Base tree version: [35mR5_SP1_Maintenance_Release_1[00m
+compat-wireless release: [01;33mr5.00.19-build_241[00m

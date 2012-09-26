@@ -355,11 +355,11 @@ static struct conf_drv_settings default_conf = {
 		.always                        = 0,
 	},
 	.fwlog = {
-		.mode                         = WL12XX_FWLOG_ON_DEMAND,
+		.mode                         = WL12XX_FWLOG_CONTINUOUS,
 		.mem_blocks                   = 2,
 		.severity                     = 0,
 		.timestamp                    = WL12XX_FWLOG_TIMESTAMP_DISABLED,
-		.output                       = WL12XX_FWLOG_OUTPUT_HOST,
+		.output                       = WL12XX_FWLOG_OUTPUT_DBG_PINS,
 		.threshold                    = 0,
 	},
 	.hci_io_ds = HCI_IO_DS_6MA,
@@ -735,8 +735,10 @@ static void wl1271_conf_init(struct wl1271 *wl)
 	if (fwlog_param) {
 		if (!strcmp(fwlog_param, "continuous")) {
 			wl->conf.fwlog.mode = WL12XX_FWLOG_CONTINUOUS;
+			wl->conf.fwlog.output = WL12XX_FWLOG_OUTPUT_HOST;
 		} else if (!strcmp(fwlog_param, "ondemand")) {
 			wl->conf.fwlog.mode = WL12XX_FWLOG_ON_DEMAND;
+			wl->conf.fwlog.output = WL12XX_FWLOG_OUTPUT_HOST;
 		} else if (!strcmp(fwlog_param, "dbgpins")) {
 			wl->conf.fwlog.mode = WL12XX_FWLOG_CONTINUOUS;
 			wl->conf.fwlog.output = WL12XX_FWLOG_OUTPUT_DBG_PINS;
@@ -2899,10 +2901,9 @@ deinit:
 
 	/*
 	 * Last AP, have more stations. Configure sleep auth according to STA.
-	 * Don't do this on unintended recovery.
+	 * Don't do this on recovery - everything will be restarted anyway.
 	 */
-	if (test_bit(WL1271_FLAG_RECOVERY_IN_PROGRESS, &wl->flags) &&
-	    !test_bit(WL1271_FLAG_INTENDED_FW_RECOVERY, &wl->flags))
+	if (test_bit(WL1271_FLAG_RECOVERY_IN_PROGRESS, &wl->flags))
 		goto unlock;
 
 	if (wl->ap_count == 0 && wlvif->bss_type == BSS_TYPE_AP_BSS
@@ -6155,7 +6156,35 @@ static struct ieee80211_hw *wl1271_alloc_hw(void)
 		goto err_dummy_packet;
 	}
 
+	wl->rx_mem_pool_addr = kmalloc(sizeof(*wl->rx_mem_pool_addr),
+				       GFP_KERNEL);
+	if (!wl->rx_mem_pool_addr) {
+		ret = -ENOMEM;
+		goto err_fwlog;
+	}
+
+	wl->mbox = kmalloc(sizeof(*wl->mbox), GFP_KERNEL);
+	if (!wl->mbox) {
+		ret = -ENOMEM;
+		goto err_pool_addr;
+	}
+
+	wl->buffer_32 = kmalloc(sizeof(*wl->buffer_32), GFP_KERNEL);
+	if (!wl->buffer_32) {
+		ret = -ENOMEM;
+		goto err_mbox;
+	}
+
 	return hw;
+
+err_mbox:
+	kfree(wl->mbox);
+
+err_pool_addr:
+	kfree(wl->rx_mem_pool_addr);
+
+err_fwlog:
+	free_page((unsigned long)wl->fwlog);
 
 err_dummy_packet:
 	dev_kfree_skb(wl->dummy_packet);
@@ -6193,6 +6222,9 @@ static int wl1271_free_hw(struct wl1271 *wl)
 	device_remove_file(wl->dev, &dev_attr_hw_pg_ver);
 
 	device_remove_file(wl->dev, &dev_attr_bt_coex_state);
+	kfree(wl->buffer_32);
+	kfree(wl->mbox);
+	kfree(wl->rx_mem_pool_addr);
 	free_page((unsigned long)wl->fwlog);
 	dev_kfree_skb(wl->dummy_packet);
 	free_pages((unsigned long)wl->aggr_buf,
